@@ -1,0 +1,42 @@
+#!/usr/bin/python3
+import socket
+import os
+import sys
+import datetime
+
+HOST = "192.168.0.36"
+PORT = 1025
+binder = (HOST, PORT)
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind(binder)
+s.listen()
+print("Listening bro")
+conn, addr = s.accept()
+print("Got a conn bro")
+print(addr)
+while True:
+    msg = conn.recv(4096)
+    if not msg:
+        print("All data successfully recieved Exiting")
+        break
+    if msg == b"can_send_bro?":
+        conn.send(b"yea_bro")
+        continue
+    if msg == b"im_sending_bro":
+        date = "".join(str(datetime.datetime.now()).split(" ")[0].split("-"))
+        time = "".join(str(datetime.datetime.now()).split(" ")[1].split(".")[0].split(":"))
+        file = open("/media/tannishpage/PrimaryBackUpDisk/BackUps/laptop-backup-{}-{}.zip".format(date, time), "wb")        
+        conn.send(b"ready_bro")
+        print("Reciving Data")
+        while True:
+            data = conn.recv(8192)
+            if not data:
+                file.close()
+                print("broke")
+                break
+            file.write(data)
+        continue
+    if msg == b"thank_bye_bro":
+        conn.send(b"welcome_bro_bye")
+        break
