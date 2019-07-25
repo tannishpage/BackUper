@@ -38,10 +38,10 @@ def create_backup(master, backup_list):
 	return path
 
 
-def send_data(file, ip, port, buffer=1024):
+def send_data(master, file, ip, port, buffer=1024):
 	s = socket.socket()
 	s.connect((ip, port))
-	message = "sending {} {}".format(file.name, buffer)
+	message = "sending {} {}".format(master+".zip", buffer)
 	s.send(bytes(message.encode()))
 	if s.recv(1024) == bytes("confirm: {}".format(message).encode()):
 		s.send(b"confirm")
@@ -61,7 +61,7 @@ def get_backup_list():
 def get_server_addr():
 	file = open(OPTIONS, 'r')
 	ip_port = file.read().split("\n")[IP].split(":")
-	return ip_port[1], ip_port[2]
+	return ip_port[1], int(ip_port[2])
 
 def get_send_file():
 	file = open(OPTIONS, 'r')
@@ -127,7 +127,7 @@ def main():
 	path = create_backup(master, backup_list)
 	if send_file:
 		print("Finished making backup, sending file to {}", ip)
-		send_data(open(path, 'r'), ip, port)
+		send_data(master, open(path, 'rb'), ip, port)
 		print("Backup file sent successfully")
 		if not keep:
 			os.remove(master+".zip")
