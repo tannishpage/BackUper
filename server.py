@@ -8,6 +8,7 @@ HOST = lines[0].split(":")[1]
 PORT = int(lines[1].split(":")[1])
 PATH = lines[2].split(":")[1]
 file.close()
+os.chdir(PATH)
 
 sock = socket.socket()
 sock.bind((HOST, PORT))
@@ -19,8 +20,9 @@ print("{} is connected".format(addr))
 msg = conn.recv(1024)
 info = str(msg).split("'")[1].split(" ")
 file_name = info[1]
-buffer = info[2]
-conn.send(bytes("confirm: sending {} {}").format(file_name, buffer))
+buffer = int(info[2])
+print(file_name)
+conn.send(bytes("confirm: sending {} {}".format(file_name, buffer).encode()))
 msg = conn.recv(1024)
 if msg == b'confirm':
 	conn.send(b'confirm')
