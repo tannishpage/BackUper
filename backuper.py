@@ -38,19 +38,30 @@ def create_backup(master, backup_list):
 	return path
 
 
-def send_data(master, file, ip, port, buffer=1024):
+def send_data(master, file, ip, port, buffer=65536):
 	s = socket.socket()
 	s.connect((ip, port))
 	message = "sending {} {}".format(master+".zip", buffer)
+	file.seek(0, 2)
+	size = file.tell()
+	file.seek(0, 0)
+	sent = 0
 	s.send(bytes(message.encode()))
 	if s.recv(1024) == bytes("confirm: {}".format(message).encode()):
 		s.send(b"confirm")
 		if s.recv(1024) == b"confirm":
-		  while True:
-		    data = file.read(buffer)
-		    s.send(data)
-		    if not data:
-        		break
+			while True:
+				data = file.read(buffer)
+				sent += len(data)
+				percent = sent/size * 100
+				sys.stdout.write("\rProgress: [{}{}] {:.1f}%".format(
+									"="*int(percent/10),
+									"."*(10 - int(percent/10)),
+									percent))
+				sys.stdout.flush()
+				s.send(data)
+				if not data:
+					break
 	return True
 
 def get_backup_list():
@@ -126,8 +137,8 @@ def main():
 	os.chdir(master)
 	path = create_backup(master, backup_list)
 	if send_file:
-		print("Finished making backup, sending file to {}", ip)
-		send_data(master, open(path, 'rb'), ip, port)
+		print("Finished making backup, sending file to {}".format(ip))
+		send_data(master, open(path, 'rb'), ip, port, buffer=8388608)
 		print("Backup file sent successfully")
 		if not keep:
 			os.remove(master+".zip")
@@ -136,6 +147,8 @@ def main():
 	clean(master)
 
 if __name__ == "__main__":
+	#os.chdir("/Users/tannishpage")
+	#send_data("backup_20190930_074428_Macbook_Air.zip", open("backup_20190930_074428_Macbook_Air.zip", 'rb'), "192.168.0.211", 5000, buffer=8388608)
 	auto = auto_backup()
 	if auto:
 		freq = int(auto_backup_freq())

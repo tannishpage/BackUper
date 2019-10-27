@@ -1,4 +1,4 @@
-SERVERADDR:192.168.0.36:5000
+SERVERADDR:192.168.0.211:5000
 SENDFILE:yes
 KEEPBACKUPFILE:no
 AUTOBACKUP:no
@@ -8,3 +8,4 @@ THINGSTOBACKUP:
 /Users/tannishpage/Documents
 /Users/tannishpage/Pictures
 /Users/tannishpage/Downloads
+/Users/tannishpage/Desktop
